@@ -135,9 +135,8 @@ app.post("/api/inquiry", async (req, res) => {
   }
 });
 
-// ---------- SERVE ANGULAR IN PRODUCTION ----------
 if (process.env.NODE_ENV === "production") {
-  const angularDistPath = path.join(__dirname, "../dist/<angular-project-name>");
+  const angularDistPath = path.join(__dirname, "../dist/web");
   app.use(express.static(angularDistPath));
 
   app.get("*", (req, res) => {
