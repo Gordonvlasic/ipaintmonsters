@@ -1,0 +1,128 @@
+[
+  {
+    "id": "skylark-001",
+    "slug": "skylark-001",
+    "title": "Skylark",
+    "artist": "Jane Doe",
+    "medium": "Oil on canvas",
+    "dimensions": { "w": 60, "h": 80, "unit": "cm" },
+    "year": 2024,
+    "price": 1800,
+    "currency": "CAD",
+    "availability": "available",
+    "framed": false,
+    "style": ["abstract", "minimal"],
+    "tags": ["blue", "large"],
+    "images": {
+      "cover": "/images/unsplash_mCjA1I8SlS8.png",
+      "thumb": "/images/unsplash_mCjA1I8SlS8.png",
+      "alt": "Blue abstract brushstrokes",
+      "gallery": []
+    }
+  },
+  {
+    "id": "sunrise-haven",
+    "slug": "sunrise-haven",
+    "title": "Sunrise Haven",
+    "artist": "John Smith",
+    "medium": "Acrylic on canvas",
+    "dimensions": { "w": 70, "h": 50, "unit": "cm" },
+    "year": 2023,
+    "price": 1450,
+    "currency": "CAD",
+    "availability": "reserved",
+    "framed": true,
+    "style": ["impressionism"],
+    "tags": ["warm", "sunrise"],
+    "images": {
+      "cover": "/images/unsplash_6c43FgRt0Dw.png",
+      "thumb": "/images/unsplash_6c43FgRt0Dw.png",
+      "alt": "Warm-toned sunrise painting",
+      "gallery": []
+    }
+  },
+  {
+    "id": "forest-whispers",
+    "slug": "forest-whispers",
+    "title": "Forest Whispers",
+    "artist": "Amelia Green",
+    "medium": "Watercolor on paper",
+    "dimensions": { "w": 40, "h": 60, "unit": "cm" },
+    "year": 2022,
+    "price": 900,
+    "currency": "CAD",
+    "availability": "available",
+    "framed": false,
+    "style": ["landscape", "nature"],
+    "tags": ["green", "forest"],
+    "images": {
+      "cover": "/images/unsplash_rfFcNGFoYpA.png",
+      "thumb": "/images/unsplash_rfFcNGFoYpA.png",
+      "alt": "Green forest watercolor",
+      "gallery": []
+    }
+  },
+  {
+    "id": "crimson-dreams",
+    "slug": "crimson-dreams",
+    "title": "Crimson Dreams",
+    "artist": "Liam Redford",
+    "medium": "Oil on linen",
+    "dimensions": { "w": 80, "h": 100, "unit": "cm" },
+    "year": 2021,
+    "price": 2400,
+    "currency": "CAD",
+    "availability": "sold",
+    "framed": true,
+    "style": ["abstract"],
+    "tags": ["red", "bold"],
+    "images": {
+      "cover": "/images/crimson.png",
+      "thumb": "/images/crimson.png",
+      "alt": "Abstract red and black painting",
+      "gallery": []
+    }
+  },
+  {
+    "id": "seaside-serenity",
+    "slug": "seaside-serenity",
+    "title": "Seaside Serenity",
+    "artist": "Sophia White",
+    "medium": "Acrylic on wood",
+    "dimensions": { "w": 120, "h": 60, "unit": "cm" },
+    "year": 2024,
+    "price": 2000,
+    "currency": "CAD",
+    "availability": "available",
+    "framed": false,
+    "style": ["coastal"],
+    "tags": ["blue", "sea"],
+    "images": {
+      "cover": "/images/unsplash_TjegK_z-0j8.png",
+      "thumb": "/images/unsplash_TjegK_z-0j8.png",
+      "alt": "Blue coastal seascape",
+      "gallery": []
+    }
+  },
+  {
+    "id": "urban-lights",
+    "slug": "urban-lights",
+    "title": "Urban Lights",
+    "artist": "Noah Gray",
+    "medium": "Mixed media",
+    "dimensions": { "w": 100, "h": 70, "unit": "cm" },
+    "year": 2023,
+    "price": 1750,
+    "currency": "CAD",
+    "availability": "reserved",
+    "framed": true,
+    "style": ["modern"],
+    "tags": ["city", "night"],
+    "images": {
+      "cover": "/images/unsplash_xt07KHuh3YU.png",
+      "thumb": "/images/unsplash_xt07KHuh3YU.png",
+      "alt": "Night city lights painting",
+      "gallery": []
+    }
+  }
+]

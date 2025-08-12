@@ -1,0 +1,7 @@
+/* Prevent accidental collapsing around header/nav text */
+:host {
+  display: block;
+}
+
+/* No special styles needed; Tailwind handles layout.
+   This file exists so you can add tweaks later if desired. */

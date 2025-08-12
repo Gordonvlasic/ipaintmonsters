@@ -1,0 +1,12 @@
+<div class="max-w-5xl mx-auto px-4 py-8" *ngIf="art">
+  <div class="grid md:grid-cols-2 gap-8">
+    <img [src]="art.images.cover" [alt]="art.images.alt" class="w-full h-auto rounded shadow"/>
+    <div>
+      <h1 class="text-2xl font-semibold mb-2">{{art.title}}</h1>
+      <p class="text-gray-600 mb-4">{{art.artist}} • {{art.year}} • {{art.medium}}</p>
+      <p class="mb-2">Size: {{art.dimensions.w}}×{{art.dimensions.h}} {{art.dimensions.unit}}</p>
+      <p class="text-xl font-bold mb-6">{{art.price | currency:art.currency}}</p>
+      <button class="px-5 py-2 bg-black text-white rounded" (click)="cart.add(art.id)">Add to cart</button>
+    </div>
+  </div>
+</div>

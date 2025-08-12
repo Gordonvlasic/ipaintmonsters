@@ -1,0 +1,44 @@
+<section class="relative bg-gray-50">
+  <!-- Background decorative -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+    <svg class="absolute top-0 left-1/2 -translate-x-1/2 text-gray-200 opacity-40"
+         width="1200" height="400" fill="none">
+      <circle cx="600" cy="200" r="600" fill="currentColor" />
+    </svg>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-4 py-20 lg:flex lg:items-center lg:gap-12">
+    <div class="lg:w-1/2">
+      <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+        Welcome to <span class="text-indigo-600">ipaintmonsters</span>
+      </h1>
+      <p class="mt-6 text-lg text-gray-600 max-w-lg">
+        Discover, collect, and celebrate beautiful artworks from emerging and established artists.
+      </p>
+      <div class="mt-8 flex gap-4">
+        <a routerLink="/cart"
+           class="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700">
+          View Your Cart
+        </a>
+        <a routerLink="/" 
+           class="px-6 py-3 bg-white border border-gray-300 font-medium rounded-lg shadow hover:bg-gray-50">
+          Browse Gallery
+        </a>
+      </div>
+    </div>
+
+    <!-- Hero image -->
+    <div class="mt-10 lg:mt-0 lg:w-1/2">
+      <img src="unsplash_1rBg5YSi00c.png" 
+           alt="Featured artwork" 
+           class="rounded-xl shadow-lg object-cover w-full h-96">
+    </div>
+  </div>
+</section>
+
+<!-- Gallery below -->
+<section class="bg-white py-12">
+  <div class="max-w-7xl mx-auto px-4">
+    <app-gallery></app-gallery>
+  </div>
+</section>

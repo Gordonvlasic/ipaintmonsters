@@ -1,0 +1,77 @@
+<section class="bg-white pt-20 pb-10 lg:pt-[100px] lg:pb-20">
+  <div class="container mx-auto">
+    <div class="flex flex-wrap -mx-4">
+      
+      <!-- Left: Checkout Form -->
+      <div class="w-full px-4 lg:w-7/12">
+        <div class="bg-white shadow-lg rounded-xl border border-gray-200 p-8 sm:p-10">
+          <h2 class="text-2xl font-bold mb-6">Finalize Your Request</h2>
+          <p class="text-gray-600 mb-8">We’ll follow up with payment details by email.</p>
+
+          <form (ngSubmit)="submit()" class="space-y-6">
+            <!-- Name -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Full Name</label>
+              <input class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500" 
+                placeholder="John Doe" [(ngModel)]="name" name="name" required>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Email</label>
+              <input type="email" class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500"
+                placeholder="you@example.com" [(ngModel)]="email" name="email" required>
+            </div>
+
+            <!-- Phone -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Phone (optional)</label>
+              <input class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500"
+                placeholder="+1 (555) 123-4567" [(ngModel)]="phone" name="phone">
+            </div>
+
+            <!-- Notes -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Notes (optional)</label>
+              <textarea rows="4" class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500"
+                placeholder="Any details you'd like us to know?" [(ngModel)]="note" name="note"></textarea>
+            </div>
+
+            <!-- Submit -->
+            <button class="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
+              [disabled]="loading || !cartItems.length">
+              {{ loading ? 'Sending…' : 'Send Request' }}
+            </button>
+
+            <!-- Messages -->
+            <p class="text-green-600 mt-4" *ngIf="success">✅ Request sent. We’ll reach out by email.</p>
+            <p class="text-red-600 mt-4" *ngIf="error">{{ error }}</p>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: Cart Summary -->
+      <div class="w-full px-4 lg:w-5/12 mt-10 lg:mt-0">
+        <div class="bg-indigo-600 text-white rounded-xl shadow-lg p-8">
+          <h3 class="text-lg font-semibold mb-6">Your Cart</h3>
+
+          <div *ngFor="let item of cartItems" class="flex items-center pb-6 mb-6 border-b border-indigo-400/50">
+            <div class="h-16 w-16 overflow-hidden rounded-lg mr-4">
+              <img [src]="item.image" alt="{{item.name}}" class="object-cover w-full h-full">
+            </div>
+            <div class="flex-1">
+              <p class="text-sm">{{item.name}}</p>
+              <p class="font-semibold">{{item.price | currency}}</p>
+            </div>
+          </div>
+
+          <div class="flex justify-between text-base font-semibold">
+            <span>Total</span>
+            <span>{{ total | currency }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
