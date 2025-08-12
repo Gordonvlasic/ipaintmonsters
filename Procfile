@@ -1,1 +1,1 @@
-web: npm start --prefix api
+web: node dist/server.js
