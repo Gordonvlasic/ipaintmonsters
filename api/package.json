@@ -3,8 +3,6 @@
   "private": true,
   "engines": { "node": "20.x", "npm": "10.x" },
   "scripts": {
-    "build": "npm --prefix web run build",
-    "heroku-postbuild": "npm run build",
     "start": "node api/server.js"
   },
   "dependencies": {
