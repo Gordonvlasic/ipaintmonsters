@@ -149,7 +149,7 @@ app.post("/api/inquiry", async (req, res) => {
 
 // ---------- Angular serving in production ----------
 if (process.env.NODE_ENV === "production") {
-  const angularPath = path.join(__dirname, "../dist/web/browser");
+  const angularPath = path.join(__dirname, "/dist/web/browser");
 
   // Serve static assets
   app.use(
