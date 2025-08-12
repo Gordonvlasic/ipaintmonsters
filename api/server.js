@@ -6,7 +6,7 @@ const rateLimit = require("express-rate-limit");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const cors = require("cors");
-
+PORT = 3000
 dotenv.config();
 
 const app = express();
@@ -26,7 +26,7 @@ app.use(
 app.use(rateLimit({ windowMs: 60_000, max: 60 }));
 
 // ---------- Data ----------
-const DATA_PATH = path.join(__dirname, "../data/artworks.json");
+const DATA_PATH = path.join(__dirname, "/data/artworks.json");
 let DATA = [];
 try {
   DATA = JSON.parse(fs.readFileSync(DATA_PATH, "utf-8"));
