@@ -3,12 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch src --exec ts-node src/server.ts",
-    "build": "npm --prefix web run build",
-    "heroku-postbuild": "npm run build",
     "start": "node api/server.js"
-
 
   },
   "keywords": [],
