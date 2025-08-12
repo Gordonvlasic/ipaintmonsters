@@ -6,7 +6,7 @@ const rateLimit = require("express-rate-limit");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const cors = require("cors");
-PORT = 3000
+const PORT = process.env.PORT || 4000;
 dotenv.config();
 
 const app = express();
@@ -159,8 +159,7 @@ if (process.env.NODE_ENV === "production") {
     })
   );
 
-  // SPA fallback
-  app.get("/*", (req, res, next) => {
+  app.get("*", (req, res, next) => {
     if (req.path.startsWith("/api") || req.path.startsWith("/images")) {
       return next();
     }
