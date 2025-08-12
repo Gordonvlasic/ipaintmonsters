@@ -22,22 +22,28 @@ const app = express();
 app.use(helmet());
 app.use(express.json({ limit: "1mb" }));
 
-// CORS for dev
-app.use(cors({ origin: ["http://localhost:4200"], credentials: false }));
+// CORS: allow localhost in dev; be permissive in prod (Heroku)
+app.use(
+  cors(
+    process.env.NODE_ENV === "production"
+      ? { origin: true, credentials: false }
+      : { origin: ["http://localhost:4200"], credentials: false }
+  )
+);
 
 const limiter = rateLimit({ windowMs: 60_000, max: 60 });
 app.use(limiter);
 
-// load artworks
+// ---------- Data ----------
 const DATA_PATH = path.join(__dirname, "../data/artworks.json");
 let DATA: Artwork[] = JSON.parse(fs.readFileSync(DATA_PATH, "utf-8"));
 
-// static images
+// ---------- Static images ----------
 app.use(
   "/images",
   express.static(path.join(__dirname, "../public/images"), {
     maxAge: "30d",
-    immutable: true
+    immutable: true,
   })
 );
 
@@ -50,7 +56,9 @@ app.get("/api/artworks", (req, res) => {
   if (q) {
     const needle = q.toLowerCase();
     items = items.filter(a =>
-      (a.title + a.artist + a.medium + (a.tags||[]).join()).toLowerCase().includes(needle)
+      (a.title + a.artist + a.medium + (a.tags || []).join())
+        .toLowerCase()
+        .includes(needle)
     );
   }
   res.json(items);
@@ -62,33 +70,40 @@ app.get("/api/artworks/:slug", (req, res) => {
   res.json(item);
 });
 
-// Email transport
+// ---------- Email ----------
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT || 587),
   secure: false,
   auth: process.env.SMTP_USER
     ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-    : undefined
+    : undefined,
 });
 
 app.post("/api/checkout/email", async (req, res) => {
   const { cart, buyer } = req.body as {
-    cart: { id:string; qty:number }[];
-    buyer: { name:string; email:string; phone?:string; note?:string };
+    cart: { id: string; qty: number }[];
+    buyer: { name: string; email: string; phone?: string; note?: string };
   };
-  if (!cart?.length || !buyer?.email) return res.status(400).json({ error: "Bad input" });
+  if (!cart?.length || !buyer?.email)
+    return res.status(400).json({ error: "Bad input" });
 
-  const items = cart.map(c => {
-    const art = DATA.find(a => a.id === c.id);
-    return art ? { art, qty: c.qty } : null;
-  }).filter(Boolean) as { art: Artwork; qty:number }[];
+  const items = cart
+    .map(c => {
+      const art = DATA.find(a => a.id === c.id);
+      return art ? { art, qty: c.qty } : null;
+    })
+    .filter(Boolean) as { art: Artwork; qty: number }[];
 
   if (!items.length) return res.status(400).json({ error: "Cart invalid" });
 
   const currency = items[0]!.art.currency;
   const total = items.reduce((s, x) => s + x.art.price * x.qty, 0);
-  const lines = items.map(x => `- ${x.art.title} (${x.art.id}) x${x.qty} — ${x.art.price} ${currency}`).join("\n");
+  const lines = items
+    .map(
+      x => `- ${x.art.title} (${x.art.id}) x${x.qty} — ${x.art.price} ${currency}`
+    )
+    .join("\n");
 
   const html = `
     <h2>New order/reservation request</h2>
@@ -106,7 +121,7 @@ app.post("/api/checkout/email", async (req, res) => {
       to: process.env.SALES_EMAIL,
       replyTo: buyer.email,
       subject: `Order/Reserve: ${items.map(x => x.art.title).join(", ")}`,
-      html
+      html,
     });
     res.json({ ok: true });
   } catch (e) {
@@ -116,8 +131,14 @@ app.post("/api/checkout/email", async (req, res) => {
 });
 
 app.post("/api/inquiry", async (req, res) => {
-  const { slug, name, email, message } = req.body || {};
-  if (!slug || !email || !message) return res.status(400).json({ error: "Bad input" });
+  const { slug, name, email, message } = (req.body || {}) as {
+    slug?: string;
+    name?: string;
+    email?: string;
+    message?: string;
+  };
+  if (!slug || !email || !message)
+    return res.status(400).json({ error: "Bad input" });
   const art = DATA.find(a => a.slug === slug);
   const html = `<p>Inquiry about <b>${art?.title || slug}</b></p><p>${message}</p><p>From: ${name || ""} / ${email}</p>`;
   try {
@@ -126,7 +147,7 @@ app.post("/api/inquiry", async (req, res) => {
       to: process.env.SALES_EMAIL,
       replyTo: email,
       subject: `Inquiry: ${art?.title || slug}`,
-      html
+      html,
     });
     res.json({ ok: true });
   } catch (e) {
@@ -135,14 +156,30 @@ app.post("/api/inquiry", async (req, res) => {
   }
 });
 
+// ---------- Serve Angular build in production ----------
 if (process.env.NODE_ENV === "production") {
-  const angularDistPath = path.join(__dirname, "../dist/web");
-  app.use(express.static(angularDistPath));
+  // IMPORTANT: your index.html is in dist/web/browser
+  const angularBrowserPath = path.join(__dirname, "../dist/web/browser");
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(angularDistPath, "index.html"));
+  // Serve static assets (JS, CSS, assets, etc.)
+  app.use(
+    express.static(angularBrowserPath, {
+      maxAge: "1d",
+      index: false, // don't auto-serve index for static requests
+    })
+  );
+
+  // SPA fallback: anything that's NOT /api or /images should return index.html
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/images")) {
+      return next();
+    }
+    res.sendFile(path.join(angularBrowserPath, "index.html"));
   });
 }
+
+// Health check (optional)
+app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
 const PORT = Number(process.env.PORT || 4000);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
