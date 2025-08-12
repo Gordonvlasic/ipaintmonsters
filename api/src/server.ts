@@ -172,12 +172,14 @@ if (process.env.NODE_ENV === "production") {
   );
 
   // SPA fallback
-  app.get("/*", (req, res, next) => {
+  // SPA fallback
+    app.get("/*", (req, res, next) => {
     if (req.path.startsWith("/api") || req.path.startsWith("/images")) {
-      return next();
+        return next();
     }
     res.sendFile(path.join(angularPath, "index.html"));
-  });
+    });
+
 }
 
 // Health check

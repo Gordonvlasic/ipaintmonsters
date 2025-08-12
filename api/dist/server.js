@@ -131,6 +131,7 @@ if (process.env.NODE_ENV === "production") {
         index: false,
     }));
     // SPA fallback
+    // SPA fallback
     app.get("/*", (req, res, next) => {
         if (req.path.startsWith("/api") || req.path.startsWith("/images")) {
             return next();
