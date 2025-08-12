@@ -10,19 +10,27 @@ import cors from "cors";
 dotenv.config();
 
 type Artwork = {
-  id: string; slug: string; title: string; artist: string;
-  medium: string; dimensions: { w:number; h:number; unit:string };
-  year: number; price: number; currency: string;
-  availability: "available"|"reserved"|"sold";
-  framed: boolean; style: string[]; tags: string[];
-  images: { cover:string; thumb:string; alt:string; gallery?:string[] };
+  id: string;
+  slug: string;
+  title: string;
+  artist: string;
+  medium: string;
+  dimensions: { w: number; h: number; unit: string };
+  year: number;
+  price: number;
+  currency: string;
+  availability: "available" | "reserved" | "sold";
+  framed: boolean;
+  style: string[];
+  tags: string[];
+  images: { cover: string; thumb: string; alt: string; gallery?: string[] };
 };
 
 const app = express();
 app.use(helmet());
 app.use(express.json({ limit: "1mb" }));
 
-// CORS: allow localhost in dev; be permissive in prod (Heroku)
+// CORS
 app.use(
   cors(
     process.env.NODE_ENV === "production"
@@ -31,8 +39,8 @@ app.use(
   )
 );
 
-const limiter = rateLimit({ windowMs: 60_000, max: 60 });
-app.use(limiter);
+// Rate limiting
+app.use(rateLimit({ windowMs: 60_000, max: 60 }));
 
 // ---------- Data ----------
 const DATA_PATH = path.join(__dirname, "../data/artworks.json");
@@ -47,7 +55,7 @@ app.use(
   })
 );
 
-// ---------- API ROUTES ----------
+// ---------- API ----------
 app.get("/api/artworks", (req, res) => {
   let items = DATA;
   const { style, maxPrice, q } = req.query as Record<string, string>;
@@ -131,12 +139,7 @@ app.post("/api/checkout/email", async (req, res) => {
 });
 
 app.post("/api/inquiry", async (req, res) => {
-  const { slug, name, email, message } = (req.body || {}) as {
-    slug?: string;
-    name?: string;
-    email?: string;
-    message?: string;
-  };
+  const { slug, name, email, message } = req.body || {};
   if (!slug || !email || !message)
     return res.status(400).json({ error: "Bad input" });
   const art = DATA.find(a => a.slug === slug);
@@ -156,30 +159,30 @@ app.post("/api/inquiry", async (req, res) => {
   }
 });
 
-// ---------- Serve Angular build in production ----------
+// ---------- Angular serving in production ----------
 if (process.env.NODE_ENV === "production") {
-  // IMPORTANT: your index.html is in dist/web/browser
-  const angularBrowserPath = path.join(__dirname, "../dist/web/browser");
+  const angularPath = path.join(__dirname, "../dist/web/browser");
 
-  // Serve static assets (JS, CSS, assets, etc.)
+  // Serve static assets
   app.use(
-    express.static(angularBrowserPath, {
+    express.static(angularPath, {
       maxAge: "1d",
-      index: false, // don't auto-serve index for static requests
+      index: false,
     })
   );
 
-  // SPA fallback: anything that's NOT /api or /images should return index.html
-  app.get("*", (req, res, next) => {
+  // SPA fallback
+  app.get("/*", (req, res, next) => {
     if (req.path.startsWith("/api") || req.path.startsWith("/images")) {
       return next();
     }
-    res.sendFile(path.join(angularBrowserPath, "index.html"));
+    res.sendFile(path.join(angularPath, "index.html"));
   });
 }
 
-// Health check (optional)
+// Health check
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
+// ---------- Start server ----------
 const PORT = Number(process.env.PORT || 4000);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
