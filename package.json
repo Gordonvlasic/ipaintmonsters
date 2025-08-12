@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --watch src --exec ts-node src/server.ts",
     "start": "node api/dist/server.js",
-    "build": "cd api && tsc && cd ../web && npm install && npm run build"
+    "build": "cd api && tsc"
 
   },
   "keywords": [],
