@@ -1,3 +1,4 @@
+// api/server.js
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -6,11 +7,16 @@ const rateLimit = require("express-rate-limit");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const PORT = process.env.PORT || 4000;
-dotenv.config();
 
+dotenv.config();                              // load .env for local dev
 const app = express();
-app.use(helmet());
+const PORT = process.env.PORT || 4000;
+
+// Heroku is behind a proxy; needed for express-rate-limit + correct IPs
+app.set("trust proxy", 1);
+
+// Basic hardening (turn off CSP unless you’ve configured it)
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: "1mb" }));
 
 // CORS
@@ -26,18 +32,18 @@ app.use(
 app.use(rateLimit({ windowMs: 60_000, max: 60 }));
 
 // ---------- Data ----------
-const DATA_PATH = path.join(__dirname, "/data/artworks.json");
+const DATA_PATH = path.join(__dirname, "data", "artworks.json");
 let DATA = [];
 try {
   DATA = JSON.parse(fs.readFileSync(DATA_PATH, "utf-8"));
 } catch (err) {
-  console.error("Failed to read artworks.json", err);
+  console.warn("No artworks.json at", DATA_PATH);
 }
 
-// ---------- Static images ----------
+// ---------- Static images (corrected path) ----------
 app.use(
   "/images",
-  express.static(path.join(__dirname, "../public/images"), {
+  express.static(path.join(__dirname, "public", "images"), {
     maxAge: "30d",
     immutable: true,
   })
@@ -46,14 +52,11 @@ app.use(
 // ---------- API ----------
 app.get("/api/artworks", (req, res) => {
   let items = DATA;
-  const style = req.query.style;
-  const maxPrice = req.query.maxPrice;
-  const q = req.query.q;
-
-  if (style) items = items.filter(a => a.style.includes(style));
+  const { style, maxPrice, q } = req.query || {};
+  if (style) items = items.filter(a => (a.style || []).includes(style));
   if (maxPrice) items = items.filter(a => a.price <= Number(maxPrice));
   if (q) {
-    const needle = q.toLowerCase();
+    const needle = String(q).toLowerCase();
     items = items.filter(a =>
       (a.title + a.artist + a.medium + (a.tags || []).join())
         .toLowerCase()
@@ -87,18 +90,16 @@ app.post("/api/checkout/email", async (req, res) => {
   const items = cart
     .map(c => {
       const art = DATA.find(a => a.id === c.id);
-      return art ? { art, qty: c.qty } : null;
+      return art ? { art, qty: Number(c.qty || 1) } : null;
     })
     .filter(Boolean);
 
   if (!items.length) return res.status(400).json({ error: "Cart invalid" });
 
-  const currency = items[0].art.currency;
-  const total = items.reduce((s, x) => s + x.art.price * x.qty, 0);
+  const currency = items[0].art.currency || "";
+  const total = items.reduce((s, x) => s + (x.art.price || 0) * x.qty, 0);
   const lines = items
-    .map(
-      x => `- ${x.art.title} (${x.art.id}) x${x.qty} — ${x.art.price} ${currency}`
-    )
+    .map(x => `- ${x.art.title} (${x.art.id}) x${x.qty} — ${x.art.price} ${currency}`)
     .join("\n");
 
   const html = `
@@ -147,22 +148,21 @@ app.post("/api/inquiry", async (req, res) => {
   }
 });
 
-// ---------- Angular serving in production ----------
+// ---------- Angular build (production) ----------
 if (process.env.NODE_ENV === "production") {
-  const angularPath = path.join(__dirname, "/dist/web/browser");
+  // Build lives at api/dist/web/browser
+  const angularPath = path.join(__dirname, "dist", "web", "browser");
 
-  // Serve static assets
+  // Serve static bundles before catch-all
+  app.use(express.static(angularPath, { maxAge: "1d", index: false }));
   app.use(
-    express.static(angularPath, {
-      maxAge: "1d",
-      index: false,
-    })
+    "/assets",
+    express.static(path.join(angularPath, "assets"), { maxAge: "30d", immutable: true })
   );
 
+  // SPA fallback (use "*" not "/*")
   app.get("*", (req, res, next) => {
-    if (req.path.startsWith("/api") || req.path.startsWith("/images")) {
-      return next();
-    }
+    if (req.path.startsWith("/api") || req.path.startsWith("/images")) return next();
     res.sendFile(path.join(angularPath, "index.html"));
   });
 }
@@ -170,5 +170,4 @@ if (process.env.NODE_ENV === "production") {
 // Health check
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
-// ---------- Start server ----------
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
